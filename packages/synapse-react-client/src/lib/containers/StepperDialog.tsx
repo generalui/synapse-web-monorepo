@@ -3,10 +3,11 @@ import React from 'react'
 import { DialogBase } from './DialogBase'
 
 export type Step = {
+  identifier: string
   title: string
-  content: React.ReactElement
   cancelButtonText?: string
-  onConfirm?: () => void
+  // TODO: Generically type this
+  onConfirm?: unknown
   confirmStep?: string
   confirmButtonText?: string
   previousStep?: string
@@ -22,6 +23,7 @@ export type StepperDialogProps = {
   onStepChange: (arg: string) => void
   open: boolean
   step: Step
+  content: React.ReactElement
 }
 
 /**
@@ -30,16 +32,18 @@ export type StepperDialogProps = {
 export const StepperDialog: React.FunctionComponent<StepperDialogProps> = ({
   errorMessage,
   onCancel,
+  onConfirm,
   onStepChange,
   open,
   step,
+  content,
 }) => {
   if (!step) return null
 
   const dialogContent = (
     <Box display="flex" flexDirection="column" gap={1}>
       <>
-        {step.content}
+        {content}
         {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       </>
     </Box>
@@ -76,11 +80,11 @@ export const StepperDialog: React.FunctionComponent<StepperDialogProps> = ({
               Next
             </Button>
           )}
-          {step?.onConfirm && step?.confirmButtonText && (
+          {onConfirm && step?.confirmButtonText && (
             <Button
               variant="contained"
               color="primary"
-              onClick={() => (step.onConfirm ? step.onConfirm() : undefined)}
+              onClick={() => (onConfirm ? onConfirm() : undefined)}
             >
               {step.confirmButtonText}
             </Button>
