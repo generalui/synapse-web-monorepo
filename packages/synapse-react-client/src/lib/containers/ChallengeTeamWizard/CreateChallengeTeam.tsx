@@ -13,6 +13,7 @@ export const CreateChallengeTeam = ({
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
 
+  // TODO: Add validation (no empty team name, etc.)
   const handleTeamUpdate = (update: PartialUpdate) => {
     setName(update.name)
     setDescription(update.description)

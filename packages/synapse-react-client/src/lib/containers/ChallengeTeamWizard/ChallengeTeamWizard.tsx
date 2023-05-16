@@ -88,6 +88,7 @@ export const ChallengeTeamWizard: React.FunctionComponent<
 
   const handleStepChange = (value?: StepsEnum) => {
     if (!value || !steps[value]) return
+    if (value === StepsEnum.SELECT_YOUR_CHALLENGE_TEAM) setCreatedNewTeam(false)
     setStep(steps[value])
   }
 
@@ -105,6 +106,7 @@ export const ChallengeTeamWizard: React.FunctionComponent<
   }
 
   const handleCreateTeam = async () => {
+    // TODO: Validate input/state values before making any calls
     console.log('Creating new team...')
     try {
       // Mock API call to create / return the team
@@ -127,24 +129,31 @@ export const ChallengeTeamWizard: React.FunctionComponent<
   }
 
   const handleFinishRegistration = async () => {
+    // TODO: Validate input/state values before making any calls
     console.log('Clicking "Finish Registration"', step.confirmStep)
     setLoading(true)
     try {
       await handleCreateTeam()
-      // Mock API call to create / return the team
+      // Mock API call of registering for challenge
       await new Promise(() => {
-        setTimeout(() => console.log('API call finished'), 750)
+        setTimeout(() => {
+          console.log(
+            'API call finished, moving to confirmStep',
+            step.confirmStep,
+          )
+          handleStepChange(step.confirmStep as StepsEnum)
+          setLoading(false)
+        }, 750)
       })
     } catch (e) {
       // TODO: Verify error response object and parse error codes/messages
       setErrorMessage('Error registering for challenge. Please try again.')
     }
-    handleStepChange(step.confirmStep as StepsEnum)
-    setLoading(false)
   }
 
   const hide = () => {
     setErrorMessage(undefined)
+    setCreatedNewTeam(false)
     onClose()
   }
 

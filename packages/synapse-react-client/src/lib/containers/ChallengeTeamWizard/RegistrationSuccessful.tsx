@@ -16,7 +16,7 @@ export const RegistrationSuccessful = ({
     <>
       <Box>
         You have successfully {createdNewTeam ? 'created' : 'joined'} team{' '}
-        {teamName} and have been added to this challenge.
+        <b>{teamName}</b> and have been added to this challenge.
       </Box>
       <Box>
         Invited team members will be automatically registered for the challenge
