@@ -1,6 +1,6 @@
 import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
-import { ChallengeTeamWizard } from '../src/lib/containers/ChallengeTeamWizard'
+import { ChallengeTeamWizard } from '../src/lib/containers/ChallengeTeamWizard/ChallengeTeamWizard'
 
 const meta = {
   title: 'Synapse/ChallengeTeamWizard',

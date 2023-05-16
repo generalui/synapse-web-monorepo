@@ -1,6 +1,7 @@
 import { Alert, Button, Box } from '@mui/material'
 import React from 'react'
 import { DialogBase } from './DialogBase'
+import { SynapseSpinner } from './LoadingScreen'
 
 export type Step = {
   identifier: string
@@ -24,6 +25,7 @@ export type StepperDialogProps = {
   open: boolean
   step: Step
   content: React.ReactElement
+  loading: boolean
 }
 
 /**
@@ -37,13 +39,14 @@ export const StepperDialog: React.FunctionComponent<StepperDialogProps> = ({
   open,
   step,
   content,
+  loading,
 }) => {
   if (!step) return null
 
   const dialogContent = (
     <Box display="flex" flexDirection="column" gap={1}>
       <>
-        {content}
+        {loading ? <SynapseSpinner size={40} /> : content}
         {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       </>
     </Box>
