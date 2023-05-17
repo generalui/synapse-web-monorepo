@@ -1,33 +1,33 @@
 import React, { useEffect, useState } from 'react'
-import { useErrorHandler } from 'react-error-boundary'
-import { useInView } from 'react-intersection-observer'
 import { PRODUCTION_ENDPOINT_CONFIG } from '../../utils/functions/getEndpoint'
-import {
-  useGetUserRegistrableTeams,
-  useGetUserRegistrableTeamsInfinite,
-} from '../../utils/hooks/SynapseAPI/user/useGetUserRegistrableTeams'
+import { useGetUserRegistrableTeams } from '../../utils/hooks/SynapseAPI/user/useGetUserRegistrableTeams'
 import { SkeletonTable } from '../../assets/skeletons/SkeletonTable'
 import { useGetTeamList } from '../../utils/hooks/SynapseAPI/team/useTeamList'
 import { Team } from '../../utils/synapseTypes/Team'
+import { DataGrid, GridColDef, gridClasses } from '@mui/x-data-grid'
+import { alpha, makeStyles, styled } from '@mui/material/styles'
+import { Theme } from '@mui/system'
 
 export type UserRegistrableTeamsProps = {
   challengeId: string
 }
 
+type ChallengeTeam = {
+  id: string
+  name: string
+  count: number
+}
+
 export default function UserRegistrableTeams({
   challengeId,
 }: UserRegistrableTeamsProps) {
-  const [allRows, setAllRows] = useState<Team[]>([])
+  const [allRows, setAllRows] = useState<ChallengeTeam[]>([])
   const [teamIdList, setTeamIdList] = useState<string[]>([])
-  const { data: regTeamIds, isLoading } = useGetUserRegistrableTeams(
-    challengeId,
-    250,
-  )
+  const { data: regTeamIds } = useGetUserRegistrableTeams(challengeId, 250)
 
-  const { data: teamsList, isLoading: teamLoading } = useGetTeamList(
-    teamIdList,
-    { enabled: !!teamIdList.length },
-  )
+  const { data: teamsList, isLoading } = useGetTeamList(teamIdList, {
+    enabled: !!teamIdList.length,
+  })
 
   useEffect(() => {
     const ids = regTeamIds?.results ?? []
@@ -35,34 +35,47 @@ export default function UserRegistrableTeams({
   }, [regTeamIds])
 
   useEffect(() => {
-    const teams = teamsList?.list
-    setAllRows(teams ?? [])
+    const teams = teamsList?.list ?? []
+    // const count = Array(teams?.length)
+    const tmp = teams?.map((team, i) => {
+      return { id: team.id, name: team.name, count: 0 }
+    })
+    console.log({ tmp })
+    setAllRows(tmp)
   }, [teamsList])
 
+  const columns: GridColDef[] = [
+    { field: 'name', headerName: 'Team Name', flex: 1 },
+    { field: 'count', headerName: 'Members', width: 75 },
+  ]
+
+  const data = allRows.map(team => {
+    return { id: team.id, name: team.name }
+  })
+
   return (
-    <>
-      {allRows.length > 0 && (
-        <>
-          {allRows.map((item: Team) => {
-            if (item) {
-              // another option would be to use an EntityLink
-              return (
-                <p key={`user-team-list-item-${item.id}`}>
-                  <a
-                    target="_self"
-                    rel="noopener noreferrer"
-                    href={`${PRODUCTION_ENDPOINT_CONFIG.PORTAL}#!Team:${item.name}`}
-                  >
-                    {item.name}
-                  </a>
-                </p>
-              )
-            } else return false
-          })}
-        </>
+    <div style={{ height: 200, width: '100%', padding: '10px 0' }}>
+      {!isLoading && (
+        <DataGrid
+          rows={allRows}
+          columns={columns}
+          checkboxSelection
+          hideFooter
+          density="compact"
+          sx={{
+            '& .MuiDataGrid-columnHeader': {
+              backgroundColor: '#F1F3F5',
+            },
+            '& .Mui-odd': {
+              backgroundColor: '#FBFBFC',
+            },
+          }}
+          getRowClassName={params =>
+            params.indexRelativeToCurrentPage % 2 === 0 ? 'Mui-even' : 'Mui-odd'
+          }
+        />
       )}
-      {!teamLoading && allRows.length == 0 && <div>Empty</div>}
-      {teamLoading && <SkeletonTable numRows={5} numCols={1} />}
-    </>
+      {isLoading && <SkeletonTable numRows={8} numCols={1} />}
+    </div>
   )
 }

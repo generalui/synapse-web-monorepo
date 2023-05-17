@@ -2,6 +2,8 @@ import { Box, Button } from '@mui/material'
 import React from 'react'
 import { Team } from '../../utils/synapseTypes/Team'
 import UserRegistrableTeams from './UserRegistrableTeams'
+import ControlPointIcon from '@mui/icons-material/ControlPoint'
+import { padding } from '@mui/system'
 
 type SelectChallengeTeamProps = {
   challengeId: string
@@ -25,7 +27,13 @@ export const SelectChallengeTeam = ({
         <Box>
           <UserRegistrableTeams challengeId={challengeId} />
         </Box>
-        <Button variant="outlined" onClick={onCreateTeam}>
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={onCreateTeam}
+          startIcon={<ControlPointIcon />}
+          sx={{ padding: '6px 18px' }}
+        >
           Create New Team
         </Button>
       </Box>

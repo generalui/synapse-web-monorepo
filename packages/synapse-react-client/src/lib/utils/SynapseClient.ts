@@ -57,6 +57,7 @@ import {
   TEAM_ID_MEMBER_ID,
   TEAM_ID_MEMBER_ID_WITH_NOTIFICATION,
   TEAM_MEMBER,
+  TEAM_MEMBER_COUNT,
   TEAM_MEMBERS,
   THREAD,
   THREAD_ID,
@@ -1466,6 +1467,26 @@ export const getTeamMembers = (
 ): Promise<PaginatedResults<TeamMember>> => {
   const url = `${TEAM_MEMBERS(teamId)}?limit=${limit}&offset=${offset}${
     fragment ? `&fragment=${fragment}` : ''
+  }`
+  return doGet(url, accessToken, BackendDestinationEnum.REPO_ENDPOINT)
+}
+
+export type Count = { count: number }
+/**
+ * Get the number of Team members matching the supplied name prefix.
+ * If the prefix is omitted then the number of members in the team is returned
+ *
+ * @param {*} id id of the Team of interest see -https://rest-docs.synapse.org/rest/GET/teamMembers/count/id.html
+ * @param {*} fragment (optional) a prefix of the user's first or last name or email address (optional)
+ *
+ */
+export const getTeamMemberCount = (
+  accessToken: string | undefined,
+  teamId: string | number,
+  fragment: string = '',
+): Promise<Count> => {
+  const url = `${TEAM_MEMBER_COUNT(teamId)}${
+    fragment ? `?fragment=${fragment}` : ''
   }`
   return doGet(url, accessToken, BackendDestinationEnum.REPO_ENDPOINT)
 }

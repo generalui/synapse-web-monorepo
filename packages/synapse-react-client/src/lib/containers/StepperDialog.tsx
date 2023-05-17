@@ -98,6 +98,9 @@ export const StepperDialog: React.FunctionComponent<StepperDialogProps> = ({
       onCancel={onCancel}
       open={open}
       title={step.title}
+      contentProps={{
+        sx: { overflowY: 'hidden' },
+      }}
     />
   )
 }
