@@ -15,7 +15,9 @@ export const SelectChallengeTeam = ({
   onSelectTeam,
 }: SelectChallengeTeamProps) => {
   const PARTICIPATION_CRITERIA =
-    'To participate in a challenge, you need to create a new Team or join an existing one. By default, the participant who crates a team is the "Team Captain" and has the ability to invite and remove members. All team members will need a Synapse account so that they can login and accept the team invitation.'
+    'To participate in a challenge, you need to create a new Team or join an existing one. \
+    By default, the participant who creates a team is the "Team Captain" and has the ability to invite and remove members. \
+    All team members will need a Synapse account so that they can login and accept the team invitation.'
   return (
     <>
       <Box>{PARTICIPATION_CRITERIA}</Box>

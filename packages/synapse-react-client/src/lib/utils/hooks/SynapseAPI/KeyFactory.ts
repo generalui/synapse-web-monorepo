@@ -499,6 +499,10 @@ export class KeyFactory {
     return this.getKey('searchEntities', query)
   }
 
+  public getTeamListQueryKey(teamIds: string[] | number[]) {
+    return this.getKey('team', teamIds, 'teamList')
+  }
+
   public getTeamMembersQueryKey(teamId: string) {
     return this.getKey('team', teamId, 'membersList')
   }

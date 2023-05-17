@@ -1558,6 +1558,24 @@ export const getIsUserMemberOfTeam = (
   )
 }
 
+export type TeamList = { list: Team[] }
+/**
+ * Get Teams that match the given list of IDs.
+ * https://rest-docs.synapse.org/rest/POST/teamList.html
+ */
+export const getTeamList = (
+  ids: string[] | number[],
+  accessToken?: string | undefined,
+) => {
+  const url = `/repo/v1/teamList`
+  return doPost<TeamList>(
+    url,
+    { list: ids },
+    accessToken,
+    BackendDestinationEnum.REPO_ENDPOINT,
+  )
+}
+
 /**
  * https://rest-docs.synapse.org/rest/GET/entity/ownerId/wikikey.html
  * Get the root WikiPageKey for an Entity.

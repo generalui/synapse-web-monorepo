@@ -1,8 +1,34 @@
-import { useInfiniteQuery, UseInfiniteQueryOptions } from 'react-query'
+import {
+  useInfiniteQuery,
+  UseInfiniteQueryOptions,
+  useQuery,
+  UseQueryOptions,
+} from 'react-query'
 import { SynapseClient } from '../../..'
 import { SynapseClientError } from '../../../SynapseClientError'
 import { useSynapseContext } from '../../../SynapseContext'
 import { PaginatedIds } from '../../../synapseTypes/PaginatedIds'
+
+export function useGetUserRegistrableTeams(
+  challengeId: string,
+  limit?: number,
+  options?: UseQueryOptions<PaginatedIds, SynapseClientError>,
+) {
+  const { accessToken, keyFactory } = useSynapseContext()
+  const perPage = limit ?? 10
+
+  return useQuery<PaginatedIds, SynapseClientError>(
+    keyFactory.getUserRegistrableTeamsQueryKey(challengeId),
+    () =>
+      SynapseClient.getUserRegistrableTeams(
+        accessToken,
+        challengeId,
+        0,
+        perPage,
+      ),
+    options,
+  )
+}
 
 export function useGetUserRegistrableTeamsInfinite(
   challengeId: string,
