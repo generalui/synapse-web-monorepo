@@ -24,7 +24,10 @@ export default function UserRegistrableTeams({
     250,
   )
 
-  const { data: teamsList, isLoading: teamLoading } = useGetTeamList(teamIdList)
+  const { data: teamsList, isLoading: teamLoading } = useGetTeamList(
+    teamIdList,
+    { enabled: !!teamIdList.length },
+  )
 
   useEffect(() => {
     const ids = regTeamIds?.results ?? []
@@ -58,8 +61,8 @@ export default function UserRegistrableTeams({
           })}
         </>
       )}
-      {!isLoading && allRows.length == 0 && <div>Empty</div>}
-      {isLoading && <SkeletonTable numRows={5} numCols={1} />}
+      {!teamLoading && allRows.length == 0 && <div>Empty</div>}
+      {teamLoading && <SkeletonTable numRows={5} numCols={1} />}
     </>
   )
 }
