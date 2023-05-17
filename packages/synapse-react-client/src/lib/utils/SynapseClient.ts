@@ -174,7 +174,10 @@ import { AccessTokenGenerationRequest } from './synapseTypes/AccessToken/AccessT
 import { AccessTokenGenerationResponse } from './synapseTypes/AccessToken/AccessTokenGenerationResponse'
 import { AccessTokenRecordList } from './synapseTypes/AccessToken/AccessTokenRecord'
 import { AuthenticatedOn } from './synapseTypes/AuthenticatedOn'
-import { ChallengePagedResults } from './synapseTypes/ChallengePagedResults'
+import {
+  ChallengePagedResults,
+  ChallengeTeamPagedResults,
+} from './synapseTypes/ChallengePagedResults'
 import {
   ChangePasswordWithCurrentPassword,
   ChangePasswordWithToken,
@@ -1417,6 +1420,20 @@ export const getUserChallenges = (
   limit: string | number = 200,
 ): Promise<ChallengePagedResults> => {
   const url = `/repo/v1/challenge?participantId=${userId}&offset=${offset}&limit=${limit}`
+  return doGet(url, accessToken, BackendDestinationEnum.REPO_ENDPOINT)
+}
+
+/**
+ * Get a list of teams registered to the given challenge.
+ * see http://rest-docs.synapse.org/rest/GET/challenge.html
+ */
+export const getChallengeTeams = (
+  accessToken: string | undefined,
+  challengeId: string | number,
+  offset: string | number = 0,
+  limit: string | number = 200,
+): Promise<ChallengeTeamPagedResults> => {
+  const url = `/repo/v1/challenge/${challengeId}/challengeTeam?&offset=${offset}&limit=${limit}`
   return doGet(url, accessToken, BackendDestinationEnum.REPO_ENDPOINT)
 }
 

@@ -1,44 +1,50 @@
 import React, { useEffect, useState } from 'react'
-import { PRODUCTION_ENDPOINT_CONFIG } from '../../utils/functions/getEndpoint'
-import { useGetUserRegistrableTeams } from '../../utils/hooks/SynapseAPI/user/useGetUserRegistrableTeams'
 import { SkeletonTable } from '../../assets/skeletons/SkeletonTable'
-import { useGetTeamList } from '../../utils/hooks/SynapseAPI/team/useTeamList'
-import { Team } from '../../utils/synapseTypes/Team'
-import { DataGrid, GridColDef, gridClasses } from '@mui/x-data-grid'
-import { alpha, makeStyles, styled } from '@mui/material/styles'
-import { Theme } from '@mui/system'
+import {
+  useGetChallengeTeamList,
+  useGetTeamList,
+} from '../../utils/hooks/SynapseAPI/team/useTeamList'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import { formatDate } from '../../utils/functions/DateFormatter'
+import dayjs from 'dayjs'
 
 export type UserRegistrableTeamsProps = {
   challengeId: string
 }
 
-type ChallengeTeam = {
+type ChallengeTeamDisplay = {
   id: string
   name: string
-  count: number
+  created: string
+  description: string
 }
 
 export default function UserRegistrableTeams({
   challengeId,
 }: UserRegistrableTeamsProps) {
-  const [allRows, setAllRows] = useState<ChallengeTeam[]>([])
+  const [allRows, setAllRows] = useState<ChallengeTeamDisplay[]>([])
   const [teamIdList, setTeamIdList] = useState<string[]>([])
-  const { data: regTeamIds } = useGetUserRegistrableTeams(challengeId, 250)
+  const { data: regTeams } = useGetChallengeTeamList(challengeId, 0, 500)
 
   const { data: teamsList, isLoading } = useGetTeamList(teamIdList, {
     enabled: !!teamIdList.length,
   })
 
   useEffect(() => {
-    const ids = regTeamIds?.results ?? []
+    const ids = regTeams?.results.map(team => team.teamId) ?? []
     setTeamIdList(ids)
-  }, [regTeamIds])
+  }, [regTeams])
 
   useEffect(() => {
     const teams = teamsList?.list ?? []
     // const count = Array(teams?.length)
     const tmp = teams?.map((team, i) => {
-      return { id: team.id, name: team.name, count: 0 }
+      return {
+        id: team.id,
+        name: team.name,
+        created: formatDate(dayjs(team.createdOn), 'MM/DD/YY'),
+        description: team.description,
+      }
     })
     console.log({ tmp })
     setAllRows(tmp)
@@ -46,12 +52,9 @@ export default function UserRegistrableTeams({
 
   const columns: GridColDef[] = [
     { field: 'name', headerName: 'Team Name', flex: 1 },
-    { field: 'count', headerName: 'Members', width: 75 },
+    { field: 'created', headerName: 'Created On', width: 100 },
+    { field: 'description', headerName: 'Description', flex: 1 },
   ]
-
-  const data = allRows.map(team => {
-    return { id: team.id, name: team.name }
-  })
 
   return (
     <div style={{ height: 200, width: '100%', padding: '10px 0' }}>
