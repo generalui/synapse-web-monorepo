@@ -543,6 +543,10 @@ export class KeyFactory {
     return this.getKey('userTeams', userId)
   }
 
+  public getUserRegistrableTeamsQueryKey(challengeId: string) {
+    return this.getKey('registrableTeams', challengeId)
+  }
+
   public getPersonalAccessTokensQueryKey() {
     return this.getKey('personalAccessTokens')
   }

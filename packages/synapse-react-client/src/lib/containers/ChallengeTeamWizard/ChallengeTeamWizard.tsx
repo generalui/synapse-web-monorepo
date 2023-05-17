@@ -3,10 +3,11 @@ import FullWidthAlert from '../FullWidthAlert'
 import { Step, StepperDialog } from '../StepperDialog'
 
 import { InviteMembers } from './InviteMembers'
-import { Team } from '../../../../dist/utils/synapseTypes/Team'
+import { Team } from '../../utils/synapseTypes/Team'
 import { CreateChallengeTeam } from './CreateChallengeTeam'
 import { SelectChallengeTeam } from './SelectChallengeTeam'
 import { RegistrationSuccessful } from './RegistrationSuccessful'
+import { useSynapseContext } from '../../utils/SynapseContext'
 
 // TODO: Organize / move types to proper location
 export type PartialUpdate = {
@@ -65,13 +66,15 @@ const createSteps = () => ({
 })
 
 export type ChallengeTeamWizardProps = {
+  challengeId: string
   isShowingModal?: boolean
   onClose: () => void
 }
 
 export const ChallengeTeamWizard: React.FunctionComponent<
   ChallengeTeamWizardProps
-> = ({ isShowingModal = false, onClose }) => {
+> = ({ challengeId, isShowingModal = false, onClose }) => {
+  const { accessToken } = useSynapseContext()
   const steps = createSteps()
   const [step, setStep] = useState<Step>(steps.SELECT_YOUR_CHALLENGE_TEAM)
   const [errorMessage, setErrorMessage] = useState<string>()
@@ -166,10 +169,13 @@ export const ChallengeTeamWizard: React.FunctionComponent<
     switch (step.identifier) {
       case StepsEnum.SELECT_YOUR_CHALLENGE_TEAM:
         return (
-          <SelectChallengeTeam
-            onCreateTeam={() => handleStepChange(StepsEnum.CREATE_NEW_TEAM)}
-            onSelectTeam={handleSelectTeam}
-          />
+          accessToken && (
+            <SelectChallengeTeam
+              challengeId={challengeId}
+              onCreateTeam={() => handleStepChange(StepsEnum.CREATE_NEW_TEAM)}
+              onSelectTeam={handleSelectTeam}
+            />
+          )
         )
       case StepsEnum.INVITE_MEMBERS:
         return (

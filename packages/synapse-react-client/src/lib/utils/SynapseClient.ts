@@ -1420,6 +1420,20 @@ export const getUserChallenges = (
 }
 
 /**
+ * Get the list of teams that the given user can register for the Challenge.
+ * see https://rest-docs.synapse.org/rest/GET/challenge/challengeId/registratableTeam.html
+ */
+export const getUserRegistrableTeams = (
+  accessToken: string | undefined,
+  challengeId: string | number,
+  offset: string | number = 0,
+  limit: string | number = 200,
+): Promise<PaginatedIds> => {
+  const url = `/repo/v1/challenge/${challengeId}/registratableTeam?&offset=${offset}&limit=${limit}`
+  return doGet(url, accessToken, BackendDestinationEnum.REPO_ENDPOINT)
+}
+
+/**
  * Get the user's list of teams they are on
  *
  * @param {*} id ownerID of the synapse user see - https://rest-docs.synapse.org/rest/org/sagebionetworks/repo/model/UserProfile.html
@@ -2465,7 +2479,7 @@ export const updateOAuthClient = (
 }
 
 /**
- 
+
  Note: Only the creator of a client can update it.
  https://rest-docs.synapse.org/rest/PUT/oauth2/client/id/verificationPrecheck.html
  */
@@ -2481,7 +2495,7 @@ export const isOAuthClientReverificationRequired = (
   )
 }
 
-/** 
+/**
 Get a secret credential to use when requesting an access token.
 Synapse supports 'client_secret_basic' and 'client_secret_post'.
 NOTE: This request will invalidate any previously issued secrets.

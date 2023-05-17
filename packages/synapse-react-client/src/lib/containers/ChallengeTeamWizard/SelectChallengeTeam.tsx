@@ -1,13 +1,16 @@
 import { Box, Button } from '@mui/material'
 import React from 'react'
-import { Team } from '../../../../dist/utils/synapseTypes/Team'
+import { Team } from '../../utils/synapseTypes/Team'
+import UserRegistrableTeams from './UserRegistrableTeams'
 
 type SelectChallengeTeamProps = {
+  challengeId: string
   onCreateTeam: () => void
   onSelectTeam: (team: Team) => void
 }
 
 export const SelectChallengeTeam = ({
+  challengeId,
   onCreateTeam,
   onSelectTeam,
 }: SelectChallengeTeamProps) => {
@@ -17,7 +20,9 @@ export const SelectChallengeTeam = ({
     <>
       <Box>{PARTICIPATION_CRITERIA}</Box>
       <Box>
-        <Box>(select new team list would go here)</Box>
+        <Box>
+          <UserRegistrableTeams challengeId={challengeId} />
+        </Box>
         <Button variant="outlined" onClick={onCreateTeam}>
           Create New Team
         </Button>
