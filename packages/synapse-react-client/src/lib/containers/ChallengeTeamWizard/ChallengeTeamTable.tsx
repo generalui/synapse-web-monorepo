@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { SkeletonTable } from '../../assets/skeletons/SkeletonTable'
 import {
   useGetChallengeTeamList,
@@ -9,6 +9,7 @@ import { formatDate } from '../../utils/functions/DateFormatter'
 import dayjs from 'dayjs'
 import { RadioOption } from '../widgets/RadioGroup'
 import { Team } from '../../utils/synapseTypes/Team'
+import { ChallengeTeamSearch } from './ChallengeTeamSearch'
 
 export type ChallengeTeamTableProps = {
   challengeId: string
@@ -43,6 +44,15 @@ export default function ChallengeTeamTable({
     onSelectTeam(teamsById[value])
   }
 
+  const getTeamRow = (team: Team): ChallengeTeamRow => {
+    return {
+      id: team.id,
+      name: team.name,
+      created: formatDate(dayjs(team.createdOn), 'MM/DD/YY'),
+      description: team.description,
+    }
+  }
+
   useEffect(() => {
     const ids = regTeams?.results.map(team => team.teamId) ?? []
     setTeamIdList(ids)
@@ -53,17 +63,28 @@ export default function ChallengeTeamTable({
     const row: ChallengeTeamRow[] = []
     const teamRecords = {}
     teams.forEach(team => {
-      row.push({
-        id: team.id,
-        name: team.name,
-        created: formatDate(dayjs(team.createdOn), 'MM/DD/YY'),
-        description: team.description,
-      })
+      row.push(getTeamRow(team))
       teamRecords[team.id] = team
     })
     setAllRows(row)
     setTeamsById(teamRecords)
   }, [teamsList])
+
+  const searchHandler = (event: ChangeEvent<HTMLInputElement>) => {
+    const term = event.target.value.toLowerCase()
+    const teams = teamsList?.list ?? []
+    let filtered = teams
+
+    if (term.length) {
+      filtered = teams.filter(team => {
+        return (
+          team.name.toLowerCase().includes(term) ||
+          team.description?.toLowerCase().includes(term)
+        )
+      })
+    }
+    setAllRows(filtered.map(team => getTeamRow(team)))
+  }
 
   const columns: GridColDef[] = [
     {
@@ -91,23 +112,28 @@ export default function ChallengeTeamTable({
   return (
     <div style={{ height: 200, width: '100%', padding: '10px 0' }}>
       {!isLoading && (
-        <DataGrid
-          rows={allRows}
-          columns={columns}
-          hideFooter
-          density="compact"
-          sx={{
-            '& .MuiDataGrid-columnHeader': {
-              backgroundColor: '#F1F3F5',
-            },
-            '& .Mui-odd': {
-              backgroundColor: '#FBFBFC',
-            },
-          }}
-          getRowClassName={params =>
-            params.indexRelativeToCurrentPage % 2 === 0 ? 'Mui-even' : 'Mui-odd'
-          }
-        />
+        <>
+          <ChallengeTeamSearch onChange={searchHandler} />
+          <DataGrid
+            rows={allRows}
+            columns={columns}
+            hideFooter
+            density="compact"
+            sx={{
+              '& .MuiDataGrid-columnHeader': {
+                backgroundColor: '#F1F3F5',
+              },
+              '& .Mui-odd': {
+                backgroundColor: '#FBFBFC',
+              },
+            }}
+            getRowClassName={params =>
+              params.indexRelativeToCurrentPage % 2 === 0
+                ? 'Mui-even'
+                : 'Mui-odd'
+            }
+          />
+        </>
       )}
       {isLoading && <SkeletonTable numRows={8} numCols={1} />}
     </div>
