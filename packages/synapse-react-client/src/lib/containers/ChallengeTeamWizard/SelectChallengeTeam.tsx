@@ -1,9 +1,8 @@
 import { Box, Button } from '@mui/material'
 import React from 'react'
 import { Team } from '../../utils/synapseTypes/Team'
-import UserRegistrableTeams from './UserRegistrableTeams'
 import ControlPointIcon from '@mui/icons-material/ControlPoint'
-import { padding } from '@mui/system'
+import ChallengeTeamTable from './ChallengeTeamTable'
 
 type SelectChallengeTeamProps = {
   challengeId: string
@@ -25,7 +24,10 @@ export const SelectChallengeTeam = ({
       <Box>{PARTICIPATION_CRITERIA}</Box>
       <Box>
         <Box>
-          <UserRegistrableTeams challengeId={challengeId} />
+          <ChallengeTeamTable
+            challengeId={challengeId}
+            onSelectTeam={onSelectTeam}
+          />
         </Box>
         <Button
           color="primary"

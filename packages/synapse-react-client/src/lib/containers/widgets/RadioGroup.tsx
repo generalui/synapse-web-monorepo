@@ -32,20 +32,24 @@ export function RadioGroup<T extends string | boolean | number = string>(
   )
 }
 
-type RadioOptionProps<T extends string | boolean | number = string> = {
+export type RadioOptionProps<T extends string | boolean | number = string> = {
   groupId: string
   label: string
   value: T
   currentValue?: T
   onChange: (value: T) => void
+  className?: string
 }
 
-function RadioOption<T extends string | boolean | number = string>(
+export function RadioOption<T extends string | boolean | number = string>(
   props: RadioOptionProps<T>,
 ) {
   const [uniqueId] = useState(_uniqueId('src-radio-'))
   return (
-    <div onClick={() => props.onChange(props.value)}>
+    <div
+      onClick={() => props.onChange(props.value)}
+      className={props.className}
+    >
       <input
         id={uniqueId}
         type="radio"

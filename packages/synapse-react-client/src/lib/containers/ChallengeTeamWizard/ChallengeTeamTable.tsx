@@ -7,28 +7,41 @@ import {
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { formatDate } from '../../utils/functions/DateFormatter'
 import dayjs from 'dayjs'
+import { RadioOption } from '../widgets/RadioGroup'
+import { Team } from '../../utils/synapseTypes/Team'
 
-export type UserRegistrableTeamsProps = {
+export type ChallengeTeamTableProps = {
   challengeId: string
+  onSelectTeam: (team: Team) => void
 }
 
-type ChallengeTeamDisplay = {
+type ChallengeTeamRow = {
   id: string
   name: string
   created: string
   description: string
 }
 
-export default function UserRegistrableTeams({
+export default function ChallengeTeamTable({
   challengeId,
-}: UserRegistrableTeamsProps) {
-  const [allRows, setAllRows] = useState<ChallengeTeamDisplay[]>([])
+  onSelectTeam,
+}: ChallengeTeamTableProps) {
+  const [allRows, setAllRows] = useState<ChallengeTeamRow[]>([])
   const [teamIdList, setTeamIdList] = useState<string[]>([])
+  const [teamsById, setTeamsById] = useState<Record<string, Team>>({})
   const { data: regTeams } = useGetChallengeTeamList(challengeId, 0, 500)
+  const [selectedTeam, setSelectedTeam] = useState<
+    string | number | undefined
+  >()
 
   const { data: teamsList, isLoading } = useGetTeamList(teamIdList, {
     enabled: !!teamIdList.length,
   })
+
+  const teamChangeHandler = (value: string | number) => {
+    setSelectedTeam(value)
+    onSelectTeam(teamsById[value])
+  }
 
   useEffect(() => {
     const ids = regTeams?.results.map(team => team.teamId) ?? []
@@ -37,20 +50,39 @@ export default function UserRegistrableTeams({
 
   useEffect(() => {
     const teams = teamsList?.list ?? []
-    // const count = Array(teams?.length)
-    const tmp = teams?.map((team, i) => {
-      return {
+    const row: ChallengeTeamRow[] = []
+    const teamRecords = {}
+    teams.forEach(team => {
+      row.push({
         id: team.id,
         name: team.name,
         created: formatDate(dayjs(team.createdOn), 'MM/DD/YY'),
         description: team.description,
-      }
+      })
+      teamRecords[team.id] = team
     })
-    console.log({ tmp })
-    setAllRows(tmp)
+    setAllRows(row)
+    setTeamsById(teamRecords)
   }, [teamsList])
 
   const columns: GridColDef[] = [
+    {
+      field: 'radiobutton',
+      headerName: '',
+      width: 25,
+      sortable: false,
+      renderCell: params => {
+        return (
+          <RadioOption
+            value={params.id}
+            currentValue={selectedTeam}
+            onChange={teamChangeHandler}
+            label=""
+            groupId="radiogroup"
+          />
+        )
+      },
+    },
     { field: 'name', headerName: 'Team Name', flex: 1 },
     { field: 'created', headerName: 'Created On', width: 100 },
     { field: 'description', headerName: 'Description', flex: 1 },
@@ -62,7 +94,6 @@ export default function UserRegistrableTeams({
         <DataGrid
           rows={allRows}
           columns={columns}
-          checkboxSelection
           hideFooter
           density="compact"
           sx={{
