@@ -22,7 +22,7 @@ export const ChallengeTeamSearch = ({ onChange }: ChallengeTeamSearchProps) => {
         },
       }}
     >
-      <Box sx={{ p: '1px' }} aria-label="search">
+      <Box sx={{ margin: '0px 0 -4px 8px' }} aria-label="search">
         <SearchIcon sx={{ color: '#878E95' }} />
       </Box>
       <InputBase

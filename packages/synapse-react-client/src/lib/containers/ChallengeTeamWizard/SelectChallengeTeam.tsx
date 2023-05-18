@@ -23,21 +23,21 @@ export const SelectChallengeTeam = ({
     <>
       <Box>{PARTICIPATION_CRITERIA}</Box>
       <Box>
+        <ChallengeTeamTable
+          challengeId={challengeId}
+          onSelectTeam={onSelectTeam}
+        />
         <Box>
-          <ChallengeTeamTable
-            challengeId={challengeId}
-            onSelectTeam={onSelectTeam}
-          />
+          <Button
+            color="primary"
+            variant="contained"
+            onClick={onCreateTeam}
+            startIcon={<ControlPointIcon />}
+            sx={{ padding: '6px 18px' }}
+          >
+            Create New Team
+          </Button>
         </Box>
-        <Button
-          color="primary"
-          variant="contained"
-          onClick={onCreateTeam}
-          startIcon={<ControlPointIcon />}
-          sx={{ padding: '6px 18px' }}
-        >
-          Create New Team
-        </Button>
       </Box>
     </>
   )
