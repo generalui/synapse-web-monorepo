@@ -11,6 +11,7 @@ type Story = StoryObj<typeof meta>
 
 export const Demo: Story = {
   args: {
+    userId: '3423215',
     challengeId: '4591',
     isShowingModal: true,
   },

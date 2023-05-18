@@ -303,6 +303,7 @@ import {
 } from './synapseTypes/TotpSecret'
 import { TwoFactorAuthRecoveryCodes } from './synapseTypes/TwoFactorAuthRecoveryCodes'
 import { SynapseError } from './SynapseError'
+import { MembershipRequest } from './synapseTypes/MembershipRequest'
 
 const cookies = new UniversalCookies()
 
@@ -1593,6 +1594,27 @@ export const getIsUserMemberOfTeam = (
   const url = TEAM_ID_MEMBER_ID(teamId, userId)
   return allowNotFoundError(() =>
     doGet<TeamMember>(url, accessToken, BackendDestinationEnum.REPO_ENDPOINT),
+  )
+}
+
+/**
+ * Create a membership request and send an email notification to the administrators of the team.
+ *
+ * @returns a TeamMember if the user is a member of the team, or null if the user is not.
+ */
+export const createMembershipRequest = (
+  teamId: string,
+  userId: string,
+  message?: string,
+  expiresOn?: string,
+  accessToken?: string,
+): Promise<MembershipRequest | null> => {
+  const url = `/repo/v1/membershipRequest`
+  return doPost<MembershipRequest>(
+    url,
+    { teamId, userId, message, expiresOn },
+    accessToken,
+    BackendDestinationEnum.REPO_ENDPOINT,
   )
 }
 

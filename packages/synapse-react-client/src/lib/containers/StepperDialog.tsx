@@ -4,7 +4,7 @@ import { DialogBase } from './DialogBase'
 import { SynapseSpinner } from './LoadingScreen'
 
 export type Step = {
-  identifier: string
+  id: string
   title: string
   cancelButtonText?: string
   // TODO: Generically type this
@@ -13,6 +13,7 @@ export type Step = {
   confirmButtonText?: string
   previousStep?: string
   nextStep?: string
+  nextEnabled?: boolean
 }
 
 export type Steps = Step[]
@@ -76,6 +77,7 @@ export const StepperDialog: React.FunctionComponent<StepperDialogProps> = ({
             <Button
               variant="contained"
               color="primary"
+              disabled={!step.nextEnabled}
               onClick={() =>
                 step.nextStep ? onStepChange(step.nextStep) : null
               }

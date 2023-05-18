@@ -112,6 +112,7 @@ export default function ChallengeTeamTable({
   return (
     <div
       style={{
+        height: '200px',
         width: '100%',
         padding: '10px 0',
       }}
@@ -125,6 +126,7 @@ export default function ChallengeTeamTable({
             hideFooter
             density="compact"
             sx={{
+              border: 'none',
               height: '100%',
               '& .MuiDataGrid-columnHeader': {
                 backgroundColor: '#F1F3F5',
