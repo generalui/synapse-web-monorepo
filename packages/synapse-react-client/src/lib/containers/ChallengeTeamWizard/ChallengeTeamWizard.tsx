@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import FullWidthAlert from '../FullWidthAlert'
 import { Step, StepperDialog } from '../StepperDialog'
 
-import { InviteMembers } from './InviteMembers'
 import { Team } from '../../utils/synapseTypes/Team'
 import { CreateChallengeTeam } from './CreateChallengeTeam'
 import { SelectChallengeTeam } from './SelectChallengeTeam'
@@ -11,7 +10,7 @@ import { useSynapseContext } from '../../utils/SynapseContext'
 import { createMembershipRequest } from '../../utils/SynapseClient'
 import { Box } from '@mui/system'
 import { JoinRequestForm } from './JoinRequestForm'
-import { resolve } from 'path'
+import { SynapseClient } from '../../utils'
 
 // TODO: Organize / move types to proper location
 export type PartialUpdate = {
@@ -41,13 +40,12 @@ enum StepsEnum {
   SELECT_YOUR_CHALLENGE_TEAM = 'SELECT_YOUR_CHALLENGE_TEAM',
   JOIN_REQUEST_FORM = 'JOIN_REQUEST_FORM',
   JOIN_REQUEST_SENT = 'JOIN_REQUEST_SENT',
-  INVITE_MEMBERS = 'INVITE_MEMBERS',
   REGISTRATION_SUCCESSFUL = 'REGISTRATION_SUCCESSFUL',
   CREATE_NEW_TEAM = 'CREATE_NEW_TEAM',
 }
-
-interface StepList {
-  [key: string]: Step
+type StepKey = keyof typeof StepsEnum
+type StepList = {
+  [key in StepKey]: Step
 }
 const createSteps = (): StepList => ({
   SELECT_YOUR_CHALLENGE_TEAM: {
@@ -61,32 +59,26 @@ const createSteps = (): StepList => ({
     title: 'Request Team Membership',
     previousStep: StepsEnum.SELECT_YOUR_CHALLENGE_TEAM,
     confirmStep: StepsEnum.JOIN_REQUEST_SENT,
+    confirmEnabled: true,
     confirmButtonText: 'Send Request',
   },
   JOIN_REQUEST_SENT: {
     id: StepsEnum.JOIN_REQUEST_SENT,
     title: 'Request Sent',
     confirmButtonText: 'Close',
-  },
-  INVITE_MEMBERS: {
-    id: StepsEnum.INVITE_MEMBERS,
-    title: 'Invite Members',
-    previousStep: StepsEnum.SELECT_YOUR_CHALLENGE_TEAM,
-    confirmStep: StepsEnum.REGISTRATION_SUCCESSFUL,
-    confirmButtonText: 'Finish Registration',
-    nextEnabled: false,
+    confirmEnabled: true,
   },
   REGISTRATION_SUCCESSFUL: {
     id: StepsEnum.REGISTRATION_SUCCESSFUL,
     title: 'Registration Successful!',
-    nextEnabled: false,
   },
   CREATE_NEW_TEAM: {
     id: StepsEnum.CREATE_NEW_TEAM,
-    title: 'Create New Team',
-    nextStep: StepsEnum.INVITE_MEMBERS,
+    title: 'Create Team',
+    confirmStep: StepsEnum.REGISTRATION_SUCCESSFUL,
+    confirmButtonText: 'Finish Registration',
     previousStep: StepsEnum.SELECT_YOUR_CHALLENGE_TEAM,
-    nextEnabled: false,
+    confirmEnabled: false,
   },
 })
 
@@ -114,53 +106,54 @@ export const ChallengeTeamWizard: React.FunctionComponent<
     name: '',
     description: '',
   })
-  const [joinMesage, setJoinMessage] = useState<string>('')
+  const [joinMessage, setJoinMessage] = useState<string>('')
+
+  const addUserToPublicTeam = () => {
+    if (!selectedTeam || !accessToken) return
+    SynapseClient.addTeamMemberAsAuthenticatedUserOrAdmin(
+      selectedTeam?.id,
+      userId,
+      accessToken,
+    )
+      .then(response => {
+        console.log({ response })
+        handleStepChange(StepsEnum.REGISTRATION_SUCCESSFUL)
+      })
+      .catch(err => {
+        console.error({ err })
+        // TODO: An error has occurred. Show the error
+      })
+  }
 
   const handleStepChange = (value?: StepsEnum) => {
     if (!value || !steps[value]) return
-    // if (value === StepsEnum.SELECT_YOUR_CHALLENGE_TEAM) setCreatedNewTeam(false)
+
     console.log('handleStepChange', value)
     switch (value) {
       case StepsEnum.SELECT_YOUR_CHALLENGE_TEAM:
         console.log('handleStepChange', StepsEnum.SELECT_YOUR_CHALLENGE_TEAM)
         setCreatedNewTeam(false)
         break
+      case StepsEnum.JOIN_REQUEST_FORM:
+        if (selectedTeam?.canPublicJoin) {
+          return addUserToPublicTeam()
+        }
+        break
     }
     setStep(steps[value])
   }
 
-  const handleInviteMembersInfo = (update: PartialUpdate) => {
-    setNewTeam({ ...newTeam, ...update })
-  }
-
   const handleChangeTeamInfo = (update: PartialUpdate) => {
-    setNewTeam({ ...newTeam, ...update })
+    const updatedTeam = { ...newTeam, ...update }
+    setNewTeam(updatedTeam)
+    const confirmEnabled = updatedTeam.name.length > 1
+    setStep({ ...step, confirmEnabled })
   }
 
   const handleSelectTeam = (team: Team) => {
-    console.log('Selected new team: ', team)
-    // If team is public, send request immediately
     if (team) {
       setSelectedTeam(team)
       if (!step.nextEnabled) setStep({ ...step, nextEnabled: true })
-      // on next
-      /*
-      if (team.canPublicJoin) {
-        createMembershipRequest(
-          team.id,
-          userId,
-          undefined,
-          undefined,
-          accessToken,
-        )
-          .then(response => {
-            console.log({ response })
-          })
-          .catch(err => {
-            console.error({ err })
-          })
-      }
-      */
     }
   }
 
@@ -170,7 +163,7 @@ export const ChallengeTeamWizard: React.FunctionComponent<
       await createMembershipRequest(
         selectedTeam.id,
         userId,
-        joinMesage,
+        joinMessage,
         undefined,
         accessToken,
       )
@@ -254,13 +247,6 @@ export const ChallengeTeamWizard: React.FunctionComponent<
               onSelectTeam={handleSelectTeam}
             />
           )
-        )
-      case StepsEnum.INVITE_MEMBERS:
-        return (
-          <InviteMembers
-            onChangeInviteMembersInfo={handleInviteMembersInfo}
-            teamName={selectedTeam?.name}
-          />
         )
       case StepsEnum.JOIN_REQUEST_FORM:
         return (

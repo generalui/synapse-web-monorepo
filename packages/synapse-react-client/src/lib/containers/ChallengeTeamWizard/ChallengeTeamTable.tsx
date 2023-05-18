@@ -59,7 +59,8 @@ export default function ChallengeTeamTable({
   }, [regTeams])
 
   useEffect(() => {
-    const teams = teamsList?.list ?? []
+    const teams =
+      teamsList?.list.filter(team => team.canRequestMembership !== false) ?? []
     const row: ChallengeTeamRow[] = []
     const teamRecords = {}
     teams.forEach(team => {
@@ -72,7 +73,8 @@ export default function ChallengeTeamTable({
 
   const searchHandler = (event: ChangeEvent<HTMLInputElement>) => {
     const term = event.target.value.toLowerCase()
-    const teams = teamsList?.list ?? []
+    const teams =
+      teamsList?.list.filter(team => team.canRequestMembership !== false) ?? []
     let filtered = teams
 
     if (term.length) {

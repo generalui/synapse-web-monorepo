@@ -10,6 +10,7 @@ export type Step = {
   // TODO: Generically type this
   onConfirm?: unknown
   confirmStep?: string
+  confirmEnabled?: boolean
   confirmButtonText?: string
   previousStep?: string
   nextStep?: string
@@ -89,6 +90,7 @@ export const StepperDialog: React.FunctionComponent<StepperDialogProps> = ({
             <Button
               variant="contained"
               color="primary"
+              disabled={!step.confirmEnabled}
               onClick={() => (onConfirm ? onConfirm() : undefined)}
             >
               {step.confirmButtonText}
